@@ -16,5 +16,4 @@ public class MediaFormatPresetsFactory {
         return new Media720pStrategy(bitrate, audioBitrate, audioChannels);
     }
 
-
 }

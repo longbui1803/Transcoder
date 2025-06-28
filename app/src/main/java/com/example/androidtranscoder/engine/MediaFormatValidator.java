@@ -3,6 +3,7 @@ package com.example.androidtranscoder.engine;
 
 import android.media.MediaFormat;
 
+import com.example.androidtranscoder.exception.InvalidOutputFormatException;
 import com.example.androidtranscoder.format.FormatExtraConstants;
 
 public class MediaFormatValidator {

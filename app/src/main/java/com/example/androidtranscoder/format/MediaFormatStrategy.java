@@ -3,6 +3,8 @@ package com.example.androidtranscoder.format;
 
 import android.media.MediaFormat;
 
+import com.example.androidtranscoder.exception.OutputFormatUnavailableException;
+
 public interface MediaFormatStrategy {
 
     /**
@@ -12,7 +14,7 @@ public interface MediaFormatStrategy {
      * @return null for passthrough.
      * @throws OutputFormatUnavailableException if input could not be transcoded because of restrictions.
      */
-    public MediaFormat createVideoOutputFormat(MediaFormat inputFormat);
+    MediaFormat createVideoOutputFormat(MediaFormat inputFormat);
 
     /**
      * Caution: this method should return null currently.
@@ -20,6 +22,6 @@ public interface MediaFormatStrategy {
      * @return null for passthrough.
      * @throws OutputFormatUnavailableException if input could not be transcoded because of restrictions.
      */
-    public MediaFormat createAudioOutputFormat(MediaFormat inputFormat);
+    MediaFormat createAudioOutputFormat(MediaFormat inputFormat);
 
 }

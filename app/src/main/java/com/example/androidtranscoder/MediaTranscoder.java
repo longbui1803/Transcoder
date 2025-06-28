@@ -1,22 +1,18 @@
 
 package com.example.androidtranscoder;
 
-import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
 import com.example.androidtranscoder.engine.MediaTranscoderEngine;
-import com.example.androidtranscoder.format.MediaFormatPresets;
 import com.example.androidtranscoder.format.MediaFormatStrategy;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -44,67 +40,6 @@ public class MediaTranscoder {
         }
         return sMediaTranscoder;
     }
-
-    /**
-     * Transcodes video file asynchronously.
-     * Audio track will be kept unchanged.
-     *
-     * @param inPath            File path for input.
-     * @param outPath           File path for output.
-     * @param outFormatStrategy Strategy for output video format.
-     * @param listener          Listener instance for callback.
-     * @throws IOException if input file could not be read.
-     */
-//    public Future<Void> transcodeVideo(final String inPath, final String outPath, final MediaFormatStrategy outFormatStrategy, final Listener listener) throws IOException {
-//        FileInputStream fileInputStream = null;
-//        FileDescriptor inFileDescriptor;
-//        try {
-//            fileInputStream = new FileInputStream(inPath);
-//            inFileDescriptor = fileInputStream.getFD();
-//        } catch (IOException e) {
-//            if (fileInputStream != null) {
-//                try {
-//                    fileInputStream.close();
-//                } catch (IOException eClose) {
-//                    Log.e(TAG, "Can't close input stream: ", eClose);
-//                }
-//            }
-//            throw e;
-//        }
-//        final FileInputStream finalFileInputStream = fileInputStream;
-//        return transcodeVideo(inFileDescriptor, outPath, outFormatStrategy, new Listener() {
-//            @Override
-//            public void onTranscodeProgress(double progress) {
-//                listener.onTranscodeProgress(progress);
-//            }
-//
-//            @Override
-//            public void onTranscodeCompleted() {
-//                closeStream();
-//                listener.onTranscodeCompleted();
-//            }
-//
-//            @Override
-//            public void onTranscodeCanceled() {
-//                closeStream();
-//                listener.onTranscodeCanceled();
-//            }
-//
-//            @Override
-//            public void onTranscodeFailed(Exception exception) {
-//                closeStream();
-//                listener.onTranscodeFailed(exception);
-//            }
-//
-//            private void closeStream() {
-//                try {
-//                    finalFileInputStream.close();
-//                } catch (IOException e) {
-//                    Log.e(TAG, "Can't close input stream: ", e);
-//                }
-//            }
-//        });
-//    }
 
     /**
      * Transcodes video file asynchronously.
