@@ -25,6 +25,8 @@ class Media720pStrategy implements MediaFormatStrategy {
 
     @Override
     public MediaFormat createVideoOutputFormat(MediaFormat inputFormat) {
+        float scale = 2f;
+        // thay đổi độ phân giải của video đầu ra
         int width = inputFormat.getInteger(MediaFormat.KEY_WIDTH);
         int height = inputFormat.getInteger(MediaFormat.KEY_HEIGHT);
         int longer, shorter, outWidth, outHeight;
@@ -48,11 +50,11 @@ class Media720pStrategy implements MediaFormatStrategy {
         }
         MediaFormat format = MediaFormat.createVideoFormat(
                 FormatExtraConstants.MIMETYPE_VIDEO_AVC,
-                outWidth,
-                outHeight);
+                (int) (outWidth * scale),
+                (int) (outHeight* scale));
         // From Nexus 4 Camera in 720p
-        format.setInteger(MediaFormat.KEY_BIT_RATE, mVideoBitrate);
-        format.setInteger(MediaFormat.KEY_FRAME_RATE, 30);
+        format.setInteger(MediaFormat.KEY_BIT_RATE, (int) (mVideoBitrate * scale));
+        format.setInteger(MediaFormat.KEY_FRAME_RATE, 60);
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 3);
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
         return format;

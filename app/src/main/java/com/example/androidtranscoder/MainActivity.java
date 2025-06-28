@@ -3,6 +3,7 @@ package com.example.androidtranscoder;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -109,6 +110,14 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(new Intent(Intent.ACTION_VIEW)
                                 .setDataAndType(uri, "video/mp4")
                                 .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION));
+                        MediaScannerConnection.scanFile(
+                                MainActivity.this,
+                                new String[]{file.getAbsolutePath()},
+                                new String[]{"video/mp4"},
+                                (path, uri1) -> {
+                                    Log.i("MediaScanner", "File scanned: " + path + ", uri: " + uri1);
+                                }
+                        );
                     }
 
                     @Override
