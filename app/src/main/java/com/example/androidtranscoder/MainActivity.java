@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
                                 fileDescriptor,
                                 file.getAbsolutePath(),
                                 MediaFormatPresetsFactory
-                                        .createVideo720pStrategy(8000 * 1000, 128 * 1000, 1),
+                                        .createVideo720pStrategy(8000 * 1000, -1, 1),
                                 listener);
                 switchButtonEnabled(true);
             }
