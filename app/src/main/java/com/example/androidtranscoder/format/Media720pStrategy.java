@@ -15,14 +15,6 @@ class Media720pStrategy implements MediaFormatStrategy {
     private final int mAudioBitrate;
     private final int mAudioChannels;
 
-    public Media720pStrategy() {
-        this(DEFAULT_VIDEO_BITRATE);
-    }
-
-    public Media720pStrategy(int videoBitrate) {
-        this(videoBitrate, AUDIO_BITRATE_AS_IS, AUDIO_CHANNELS_AS_IS);
-    }
-
     public Media720pStrategy(int videoBitrate, int audioBitrate, int audioChannels) {
         mVideoBitrate = videoBitrate;
         mAudioBitrate = audioBitrate;
