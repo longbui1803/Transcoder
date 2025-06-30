@@ -4,6 +4,7 @@ package com.example.androidtranscoder.engine;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
+import android.util.Log;
 
 import com.example.androidtranscoder.format.FormatExtraConstants;
 
@@ -35,6 +36,11 @@ public class VideoTrackTranscoder implements TrackTranscoder {
     private boolean mDecoderStarted;
     private boolean mEncoderStarted;
     private long mWrittenPresentationTimeUs;
+    private long mDuration;
+    private final float mTrimVideo = 0.5f;
+
+    private final long mStartTimeUs = 5_000_000L;
+    private final long mEndTimeUs = 10_000_000L;
 
     public VideoTrackTranscoder(MediaExtractor extractor, int trackIndex,
                                 MediaFormat outputFormat, QueuedMuxer muxer) {
@@ -47,6 +53,7 @@ public class VideoTrackTranscoder implements TrackTranscoder {
     @Override
     public void setup() {
         mExtractor.selectTrack(mTrackIndex);
+        mExtractor.seekTo(mStartTimeUs, MediaExtractor.SEEK_TO_CLOSEST_SYNC);
         try {
             mEncoder = MediaCodec.createEncoderByType(mOutputFormat.getString(MediaFormat.KEY_MIME));
         } catch (IOException e) {
@@ -60,6 +67,7 @@ public class VideoTrackTranscoder implements TrackTranscoder {
         mEncoderOutputBuffers = mEncoder.getOutputBuffers();
 
         MediaFormat inputFormat = mExtractor.getTrackFormat(mTrackIndex);
+        mDuration = inputFormat.getLong(MediaFormat.KEY_DURATION);
         if (inputFormat.containsKey(FormatExtraConstants.KEY_ROTATION_DEGREES)) {
             // Decoded video is rotated automatically in Android 5.0 lollipop.
             // Turn off here because we don't want to encode rotated one.
@@ -134,20 +142,48 @@ public class VideoTrackTranscoder implements TrackTranscoder {
 
     private int drainExtractor(long timeoutUs) {
         if (mIsExtractorEOS) return DRAIN_STATE_NONE;
+
+        // Bỏ qua các frame trước startTime
+        while (true) {
+            int trackIndex = mExtractor.getSampleTrackIndex();
+            if (trackIndex < 0) {
+                mIsExtractorEOS = true;
+                return DRAIN_STATE_NONE;
+            }
+            // Chỉ xử lý track video
+            if (trackIndex != mTrackIndex) {
+                return DRAIN_STATE_NONE;
+            }
+            long sampleTime = mExtractor.getSampleTime();
+            if (sampleTime < 0) {
+                mIsExtractorEOS = true;
+                return DRAIN_STATE_NONE;
+            }
+            // Nếu đã qua startTime thì thoát vòng lặp
+            if (sampleTime >= mStartTimeUs) {
+                break;
+            }
+            // Frame này nằm trước startTime, bỏ qua và chuyển đến frame tiếp theo
+            mExtractor.advance();
+        }
+
         int trackIndex = mExtractor.getSampleTrackIndex();
         if (trackIndex >= 0 && trackIndex != mTrackIndex) {
             return DRAIN_STATE_NONE;
         }
         int result = mDecoder.dequeueInputBuffer(timeoutUs);
         if (result < 0) return DRAIN_STATE_NONE;
-        if (trackIndex < 0) {
+
+        long sampleTime = mExtractor.getSampleTime();
+        // Kiểm tra nếu vượt quá endTime
+        if (sampleTime > mEndTimeUs) {
             mIsExtractorEOS = true;
             mDecoder.queueInputBuffer(result, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
             return DRAIN_STATE_NONE;
         }
         int sampleSize = mExtractor.readSampleData(mDecoderInputBuffers[result], 0);
         boolean isKeyFrame = (mExtractor.getSampleFlags() & MediaExtractor.SAMPLE_FLAG_SYNC) != 0;
-        mDecoder.queueInputBuffer(result, 0, sampleSize, mExtractor.getSampleTime(), isKeyFrame ? MediaCodec.BUFFER_FLAG_SYNC_FRAME : 0);
+        mDecoder.queueInputBuffer(result, 0, sampleSize, sampleTime, isKeyFrame ? MediaCodec.BUFFER_FLAG_SYNC_FRAME : 0);
         mExtractor.advance();
         return DRAIN_STATE_CONSUMED;
     }
